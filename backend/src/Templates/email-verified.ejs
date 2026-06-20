@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Verified Successfully - MicroPC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #e0e7ff;
+      --success: #10b981;
+      --success-hover: #059669;
+      --success-light: #ecfdf5;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--slate-50);
+      background-image: 
+        radial-gradient(circle at 0% 0%, rgba(79, 70, 229, 0.04) 0%, transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
+      color: var(--slate-700);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 480px;
+      padding: 48px 32px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Top Accent Line */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--primary) 0%, #818cf8 50%, var(--success) 100%);
+    }
+
+    /* Brand Logo styling matching verify-email */
+    .brand {
+      display: inline-block;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.75px;
+      color: var(--primary);
+      text-decoration: none;
+      margin-bottom: 36px;
+    }
+
+    .brand span {
+      color: var(--slate-800);
+    }
+
+    /* Success Checkmark Circle */
+    .checkmark-wrapper {
+      width: 88px;
+      height: 88px;
+      margin: 0 auto 28px;
+      background-color: var(--success-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      animation: pulse 2s infinite;
+    }
+
+    .checkmark-svg {
+      width: 48px;
+      height: 48px;
+      color: var(--success);
+    }
+
+    .checkmark-path {
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+      animation: draw-check 0.8s ease-in-out forwards 0.2s;
+    }
+
+    .checkmark-circle {
+      stroke-dasharray: 150;
+      stroke-dashoffset: 150;
+      animation: draw-circle 0.6s ease-in-out forwards;
+    }
+
+    /* Typography */
+    h1 {
+      color: var(--slate-900);
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: #64748b;
+      line-height: 1.6;
+      margin-bottom: 32px;
+      padding: 0 8px;
+    }
+
+    /* User details box */
+    .user-badge {
+      background-color: var(--slate-100);
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+      max-width: 100%;
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .user-info {
+      text-align: left;
+      font-size: 14px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: var(--slate-800);
+    }
+
+    /* CTA Button */
+    .btn {
+      display: inline-block;
+      width: 100%;
+      padding: 14px 28px;
+      background-color: var(--primary);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 16px;
+      text-decoration: none;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    /* Footer styling */
+    .footer {
+      margin-top: 36px;
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Keyframe Animations */
+    @keyframes draw-circle {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes draw-check {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2);
+      }
+      70% {
+        box-shadow: 0 0 0 12px rgba(16, 185, 129, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 36px 20px;
+      }
+      
+      h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <!-- Brand Header -->
+    <a href="/" class="brand">Micro<span>PC</span></a>
+
+    <!-- Success Checkmark Circle -->
+    <div class="checkmark-wrapper">
+      <svg class="checkmark-svg" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle class="checkmark-circle" cx="26" cy="26" r="23" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+        <path class="checkmark-path" d="M16 26L23 33L37 19" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <!-- Activation Message -->
+    <h1>Email Address Verified</h1>
+    <p class="subtitle">
+      Thank you for verifying your email address. Your MicroPC account is now active and ready to go. You can safely close this window or continue to the platform.
+    </p>
+
+    <!-- User Badge -->
+    <% if (locals.name) { %>
+    <div class="user-badge">
+      <div class="user-avatar">
+        <%= locals.name.charAt(0) %>
+      </div>
+      <div class="user-info">
+        <span class="user-name"><%= locals.name %></span>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- Action Button -->
+    <a href="<%= locals.loginLink || 'http://localhost:3000/login' %>" class="btn">
+      Continue to Login
+    </a>
+
+    <!-- Footer Support Link -->
+    <div class="footer">
+      <p>Need support? Contact us at <a href="mailto:support@micropc.com">support@micropc.com</a></p>
+      <p style="margin-top: 8px;">&copy; 2026 MicroPC. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
