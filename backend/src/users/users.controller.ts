@@ -24,6 +24,8 @@ import { JwtRefreshTokenGuard } from 'src/Guards/JwtRefreshToken.guard';
 import type { Request, Response } from 'express';
 import { RAW_REFRESH_TOKEN_KEY } from 'src/utils/constants';
 import { UpdateEmailDto } from './dto/Update-email.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('users')
 export class UsersController {
@@ -114,9 +116,35 @@ export class UsersController {
     @CurrentUser() user: User,
     @Body() updateEmailDto: UpdateEmailDto,
   ) {
-    return this.usersService.UpdateEmail(
-      user.id,
-      updateEmailDto
-    );
+    return this.usersService.UpdateEmail(user.id, updateEmailDto);
+  }
+
+  @Patch('update-password')
+  async UpdatePassword(
+    @CurrentUser() user: User,
+    @Body() updatePasswordDto: UpdatePasswordDto,
+  ) {
+    return this.usersService.UpdatePassword(user.id, updatePasswordDto);
+  }
+
+  @Post('send-forget-password-code')
+  async sendForgetPasswordCode(@CurrentUser() user: User) {
+    return this.usersService.SendForgetPasswordCode(user.id);
+  }
+
+  @Post('verify-forget-password-code')
+  async verifyForgetPasswordCode(
+    @Body('email') email: string,
+    @Body('code') code: number,
+  ) {
+    return this.usersService.VerifyForgetPasswordCode(email, code);
+  }
+
+  @Post('reset-password')
+  async resetPassword(
+    @Body('email') email: string,
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ) {
+    return this.usersService.ResetPassword(email, resetPasswordDto);
   }
 }

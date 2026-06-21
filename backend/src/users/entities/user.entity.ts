@@ -59,14 +59,17 @@ export class User {
   @Column({ nullable: true, type: 'varchar', length: 255 })
   PhotoUrl: string | null;
 
-  @Column({ nullable: true, type: 'varchar', length: 255 })
-  PasswordChangingCode: string | null;
-
   @Column({ nullable: true, type: 'int' })
-  PasswordChangingCodeExpireIn: number | null;
+  PasswordChangingCode: number | null;
+
+  @Column({ nullable: true, type: 'timestamp' })
+  PasswordChangingCodeExpireIn: Date | null;
 
   @Column({ nullable: true, type: 'timestamp' })
   PasswordChangingCodeCreatedAt: Date | null;
+
+  @Column({ nullable: true, type: 'boolean' })
+  isForgetPasswordCodeVerified: boolean | null;
 
   @Column({ nullable: true, type: 'varchar', length: 255 })
   RefreshToken: string | null;

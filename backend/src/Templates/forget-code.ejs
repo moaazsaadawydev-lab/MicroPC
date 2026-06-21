@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reset Your MicroPC Password</title>
+    <!--[if mso]>
+      <noscript>
+        <xml>
+          <o:OfficeDocumentSettings>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+          </o:OfficeDocumentSettings>
+        </xml>
+      </noscript>
+    <![endif]-->
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100% !important;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        background-color: #f8fafc;
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+          Arial, sans-serif;
+      }
+      img {
+        border: 0;
+        height: auto;
+        line-height: 100%;
+        outline: none;
+        text-decoration: none;
+      }
+      table {
+        border-collapse: collapse !important;
+      }
+    </style>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      background-color: #f8fafc;
+      font-family:
+        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+        sans-serif;
+      color: #1e293b;
+    "
+  >
+    <table
+      width="100%"
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      style="background-color: #f8fafc; width: 100%"
+    >
+      <tr>
+        <td align="center" style="padding: 40px 20px">
+          <!-- Container Table -->
+          <table
+            class="container"
+            width="100%"
+            border="0"
+            cellpadding="0"
+            cellspacing="0"
+            style="
+              max-width: 580px;
+              width: 100%;
+              background-color: #ffffff;
+              border-radius: 16px;
+              overflow: hidden;
+              box-shadow:
+                0 4px 6px -1px rgba(0, 0, 0, 0.05),
+                0 2px 4px -2px rgba(0, 0, 0, 0.05);
+              border: 1px solid #e2e8f0;
+            "
+          >
+            <!-- Top Accent Bar (Gradient) -->
+            <tr>
+              <td
+                height="6"
+                style="
+                  background: linear-gradient(90deg, #4f46e5 0%, #818cf8 100%);
+                  background-color: #4f46e5;
+                "
+              ></td>
+            </tr>
+
+            <!-- Header / Brand Logo -->
+            <tr>
+              <td align="center" style="padding: 32px 32px 20px 32px">
+                <span
+                  style="
+                    font-size: 26px;
+                    font-weight: 800;
+                    letter-spacing: -0.5px;
+                    color: #4f46e5;
+                    font-family:
+                      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                      Helvetica, Arial, sans-serif;
+                  "
+                >
+                  Micro<span style="color: #1e293b">PC</span>
+                </span>
+              </td>
+            </tr>
+
+            <!-- Main Email Content -->
+            <tr>
+              <td style="padding: 20px 32px 32px 32px">
+                <h1
+                  style="
+                    margin: 0 0 16px 0;
+                    font-size: 22px;
+                    font-weight: 700;
+                    color: #0f172a;
+                    text-align: center;
+                    line-height: 30px;
+                  "
+                >
+                  Reset Your Password
+                </h1>
+
+                <p
+                  style="
+                    margin: 0 0 16px 0;
+                    font-size: 16px;
+                    line-height: 24px;
+                    color: #334155;
+                  "
+                >
+                  Hello <strong><%= locals.name %></strong>,
+                </p>
+
+                <p
+                  style="
+                    margin: 0 0 24px 0;
+                    font-size: 16px;
+                    line-height: 24px;
+                    color: #475569;
+                  "
+                >
+                  We received a request to reset the password for your MicroPC
+                  account. Use the verification code below to authorize this
+                  request:
+                </p>
+
+                <!-- OTP Code Display -->
+                <table
+                  width="100%"
+                  border="0"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="margin-bottom: 28px"
+                >
+                  <tr>
+                    <td align="center">
+                      <div
+                        style="
+                          font-family:
+                            'SFMono-Regular', Consolas, 'Liberation Mono',
+                            Menlo, Courier, monospace;
+                          font-size: 32px;
+                          font-weight: 700;
+                          letter-spacing: 8px;
+                          color: #4f46e5;
+                          background-color: #f5f3ff;
+                          padding: 18px 32px;
+                          border-radius: 12px;
+                          display: inline-block;
+                          border: 1.5px dashed #818cf8;
+                          text-indent: 8px;
+                        "
+                      >
+                        <%= locals.code %>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Warning Box -->
+                <table
+                  width="100%"
+                  border="0"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="
+                    background-color: #f8fafc;
+                    border-radius: 8px;
+                    border: 1px solid #e2e8f0;
+                    margin-bottom: 28px;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 16px">
+                      <table
+                        width="100%"
+                        border="0"
+                        cellpadding="0"
+                        cellspacing="0"
+                      >
+                        <tr>
+                          <td
+                            width="28"
+                            valign="top"
+                            style="font-size: 16px; line-height: 20px"
+                          >
+                            ⏱️
+                          </td>
+                          <td
+                            style="
+                              font-size: 13px;
+                              line-height: 20px;
+                              color: #475569;
+                            "
+                          >
+                            For security reasons, this code will expire in
+                            <strong
+                              ><%= locals.expireIn || '1 hours' %></strong
+                            >. If you did not make this request, you can safely
+                            ignore this email and your password will remain
+                            unchanged.
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Security Warning -->
+                <table
+                  width="100%"
+                  border="0"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="border-top: 1px solid #e2e8f0; padding-top: 20px"
+                >
+                  <tr>
+                    <td
+                      style="font-size: 13px; line-height: 20px; color: #64748b"
+                    >
+                      <p style="margin: 0">
+                        <strong>Never share this code with anyone.</strong>
+                        MicroPC customer support will never ask you for this
+                        code, password, or any other sensitive account
+                        credentials.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer Section -->
+            <tr>
+              <td
+                style="
+                  background-color: #f1f5f9;
+                  padding: 24px 32px;
+                  border-top: 1px solid #e2e8f0;
+                  text-align: center;
+                "
+              >
+                <p
+                  style="
+                    margin: 0 0 8px 0;
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: #475569;
+                  "
+                >
+                  The MicroPC Team
+                </p>
+                <p style="margin: 0 0 16px 0; font-size: 12px; color: #64748b">
+                  Your Premium Tech Destination
+                </p>
+                <p
+                  style="
+                    margin: 0;
+                    font-size: 11px;
+                    color: #94a3b8;
+                    line-height: 16px;
+                  "
+                >
+                  &copy; 2026 MicroPC. All rights reserved.<br />
+                  This is an automated message. Please do not reply directly to
+                  this email.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
