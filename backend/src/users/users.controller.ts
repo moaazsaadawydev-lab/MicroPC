@@ -61,7 +61,7 @@ export class UsersController {
       loginUserDto.password,
     );
 
-    res.cookie('refreshToken', tokens.refresh_token, {
+    res.cookie('refreshToken', tokens.tokens.refresh_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -69,7 +69,7 @@ export class UsersController {
     });
 
     return {
-      access_token: tokens.access_token,
+      access_token: tokens.tokens.access_token,
     };
   }
 
@@ -120,6 +120,7 @@ export class UsersController {
   }
 
   @Patch('update-password')
+  @UseGuards(AuthGuard)
   async UpdatePassword(
     @CurrentUser() user: User,
     @Body() updatePasswordDto: UpdatePasswordDto,
@@ -128,8 +129,8 @@ export class UsersController {
   }
 
   @Post('send-forget-password-code')
-  async sendForgetPasswordCode(@CurrentUser() user: User) {
-    return this.usersService.SendForgetPasswordCode(user.id);
+  async sendForgetPasswordCode(@Body('email') email: string) {
+    return this.usersService.SendForgetPasswordCode(email);
   }
 
   @Post('verify-forget-password-code')

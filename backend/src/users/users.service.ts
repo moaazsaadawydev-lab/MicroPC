@@ -67,6 +67,7 @@ export class UsersService {
     });
 
     return {
+      user: newUser,
       message: 'User created successfully',
     };
   }
@@ -101,10 +102,10 @@ export class UsersService {
     user.EmailVerificationLinkExpireIn = null;
     user.EmailVerificationLinkCreatedAt = null;
 
-    await this.usersRepository.save(user);
+    const newUser = await this.usersRepository.save(user);
 
     return {
-      user: user,
+      user: newUser,
       message: 'Email verified successfully',
     };
   }
@@ -132,13 +133,16 @@ export class UsersService {
 
     const tokens = await this.commonService.generateTokens(user);
 
-    await this.usersRepository.update(user.id, {
+    const newUser = await this.usersRepository.update(user.id, {
       RefreshToken: tokens.hashed_refresh_token,
       RefreshTokenExpireIn: new Date(Date.now() + 60 * 60 * 24 * 15 * 1000),
       isLoggedIn: true,
     });
 
-    return tokens;
+    return {
+      tokens: tokens,
+      newUser: newUser,
+    };
   }
 
   async Logout(id: string) {
@@ -154,7 +158,7 @@ export class UsersService {
       throw new BadRequestException('User not logged in');
     }
 
-    await this.usersRepository.update(user.id, {
+    const newUser = await this.usersRepository.update(user.id, {
       isLoggedIn: false,
       RefreshToken: null,
       RefreshTokenExpireIn: null,
@@ -162,6 +166,7 @@ export class UsersService {
 
     return {
       message: 'User logged out successfully',
+      newUser,
     };
   }
 
@@ -239,7 +244,7 @@ export class UsersService {
       Math.random().toString(36).substring(2, 15);
     const verificationLink = `http://localhost:3000/api/v1/users/verify-email/${verificationToken}`;
 
-    await this.usersRepository.update(user.id, {
+    const newUser = await this.usersRepository.update(user.id, {
       isEmailVerified: false,
       isLoggedIn: false,
       RefreshToken: null,
@@ -262,6 +267,7 @@ export class UsersService {
 
     return {
       message: 'Email updated successfully',
+      newUser
     };
   }
 
@@ -291,12 +297,13 @@ export class UsersService {
       updatePasswordDto.newPassword,
     );
 
-    await this.usersRepository.update(user.id, {
+    const newUser = await this.usersRepository.update(user.id, {
       password: hashedPassword,
     });
 
     return {
       message: 'Password updated successfully',
+      newUser,
     };
   }
 
@@ -311,7 +318,7 @@ export class UsersService {
 
     const forgetPasswordCode = Math.floor(100000 + Math.random() * 900000);
 
-    await this.usersRepository.update(user.id, {
+    const newUser = await this.usersRepository.update(user.id, {
       PasswordChangingCode: forgetPasswordCode,
       PasswordChangingCodeExpireIn: new Date(Date.now() + 60 * 60 * 1000),
       PasswordChangingCodeCreatedAt: new Date(),
@@ -330,6 +337,7 @@ export class UsersService {
 
     return {
       message: 'Forget password code sent successfully, Check your email',
+      newUser,
     };
   }
 
@@ -353,7 +361,7 @@ export class UsersService {
       throw new BadRequestException('Code has expired');
     }
 
-    await this.usersRepository.update(user.id, {
+    const newUser = await this.usersRepository.update(user.id, {
       isForgetPasswordCodeVerified: true,
       PasswordChangingCode: null,
       PasswordChangingCodeExpireIn: null,
@@ -362,6 +370,7 @@ export class UsersService {
 
     return {
       message: 'Code verified successfully',
+      newUser: newUser,
     };
   }
 
