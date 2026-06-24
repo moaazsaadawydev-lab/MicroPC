@@ -1,6 +1,6 @@
 import { DeliveryDriverProfile } from './delivery-profile.entity';
 import { TIMESTAMP } from 'src/utils/constants';
-import { UserRole } from 'src/utils/enums';
+import { AccountStatus, UserRole } from 'src/utils/enums';
 import {
   Column,
   CreateDateColumn,
@@ -38,11 +38,19 @@ export class User {
   @Column({ nullable: false, default: false })
   isLoggedIn: boolean;
 
+  @Column({ nullable: true, type: 'timestamp' })
+  LastLogin: Date;
+
   @Column({ nullable: false, default: false })
   isEmailVerified: boolean;
 
-  @Column({ nullable: false, default: false })
-  isAccountBanned: boolean;
+  @Column({
+    type: 'enum',
+    enum: AccountStatus,
+    nullable: false,
+    default: AccountStatus.UNVERIFIED,
+  })
+  AccountStatus: AccountStatus;
 
   @Column({ nullable: false, default: false })
   isPasswordChanged: boolean;

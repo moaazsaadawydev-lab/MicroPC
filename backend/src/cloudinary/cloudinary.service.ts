@@ -26,4 +26,25 @@ export class CloudinaryService {
       streamifier.createReadStream(file.buffer).pipe(uploadStream);
     });
   }
+
+  deleteFile(url: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      try {
+        const parts = url.split('/micro-pc/');
+        if (parts.length < 2) {
+          return reject(new Error('Invalid URL or folder not found in URL'));
+        }
+        const publicIdWithFolder = `micro-pc/${parts[1].split('.')[0]}`;
+
+        cloudinary.uploader.destroy(publicIdWithFolder, (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(result);
+        });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
 }

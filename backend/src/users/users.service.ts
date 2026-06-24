@@ -1,18 +1,23 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CommonService } from 'src/common/common.service';
 import { UpdateEmailDto } from './dto/Update-email.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { AccountStatus } from 'src/utils/enums';
+import { UpdateUserDto } from './dto/UpdateUser.dto';
+import { Email_Verification_Token_EXPIRE_IN } from 'src/utils/constants';
 
 @Injectable()
 export class UsersService {
@@ -67,7 +72,6 @@ export class UsersService {
     });
 
     return {
-      user: newUser,
       message: 'User created successfully',
     };
   }
@@ -92,20 +96,17 @@ export class UsersService {
       throw new BadRequestException('User already verified');
     }
 
-    if (user.PendingEmail) {
-      user.email = user.PendingEmail;
-      user.PendingEmail = null;
-    }
-
-    user.isEmailVerified = true;
-    user.EmailVerificationToken = null;
-    user.EmailVerificationLinkExpireIn = null;
-    user.EmailVerificationLinkCreatedAt = null;
-
-    const newUser = await this.usersRepository.save(user);
+    await this.usersRepository.update(user.id, {
+      isEmailVerified: true,
+      AccountStatus: AccountStatus.ACTIVE,
+      EmailVerificationToken: null,
+      EmailVerificationLinkExpireIn: null,
+      EmailVerificationLinkCreatedAt: null,
+      email: user.PendingEmail ? user.PendingEmail : user.email,
+      PendingEmail: null,
+    });
 
     return {
-      user: newUser,
       message: 'Email verified successfully',
     };
   }
@@ -119,8 +120,12 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    if (!user.isEmailVerified) {
-      throw new BadRequestException('User not verified');
+    if (user.AccountStatus === AccountStatus.BANNED) {
+      throw new BadRequestException('Your account is banned');
+    }
+
+    if (user.AccountStatus === AccountStatus.SUSPENDED) {
+      throw new BadRequestException('Your account is suspended');
     }
 
     const isMatch = await this.commonService.comparator(
@@ -131,17 +136,91 @@ export class UsersService {
       throw new BadRequestException('Invalid credentials');
     }
 
+    if (!user.isEmailVerified && !user.PendingEmail) {
+      throw new BadRequestException('You need to verify your email');
+    }
+
     const tokens = await this.commonService.generateTokens(user);
 
-    const newUser = await this.usersRepository.update(user.id, {
+    await this.usersRepository.update(user.id, {
       RefreshToken: tokens.hashed_refresh_token,
       RefreshTokenExpireIn: new Date(Date.now() + 60 * 60 * 24 * 15 * 1000),
       isLoggedIn: true,
+      LastLogin: new Date(),
     });
 
     return {
-      tokens: tokens,
-      newUser: newUser,
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+    };
+  }
+
+  async validateSession(userId: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.isLoggedIn) {
+      throw new BadRequestException('User not logged in');
+    }
+
+    if (
+      user.RefreshTokenExpireIn &&
+      user.RefreshTokenExpireIn.getTime() < new Date().getTime()
+    ) {
+      throw new BadRequestException('Refresh token expired');
+    }
+
+    await this.usersRepository.update(user.id, {
+      LastLogin: new Date(),
+    });
+
+    return {
+      message: 'Session is valid',
+    };
+  }
+
+  async resendVerificationLink(email: string) {
+    const user = await this.usersRepository.findOne({
+      where: { email: email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.isEmailVerified) {
+      throw new BadRequestException('User already verified');
+    }
+
+    const verificationToken =
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15);
+
+    const verificationLink = `http://localhost:3000/api/v1/users/verify-email/${verificationToken}`;
+
+    this.commonService.sendEmail({
+      to: user.email,
+      subject: 'Welcome to MicroPC',
+      template: 'verify-email',
+      context: {
+        name: user.username,
+        verificationLink: verificationLink,
+      },
+    });
+
+    await this.usersRepository.update(user.id, {
+      EmailVerificationToken: verificationToken,
+      EmailVerificationLinkExpireIn: Email_Verification_Token_EXPIRE_IN,
+      EmailVerificationLinkCreatedAt: new Date(),
+    });
+
+    return {
+      message: 'Email verification link sent successfully',
     };
   }
 
@@ -158,7 +237,7 @@ export class UsersService {
       throw new BadRequestException('User not logged in');
     }
 
-    const newUser = await this.usersRepository.update(user.id, {
+    await this.usersRepository.update(user.id, {
       isLoggedIn: false,
       RefreshToken: null,
       RefreshTokenExpireIn: null,
@@ -166,7 +245,6 @@ export class UsersService {
 
     return {
       message: 'User logged out successfully',
-      newUser,
     };
   }
 
@@ -179,7 +257,9 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    return user;
+    return {
+      user,
+    };
   }
 
   async updateRefreshToken(userId: string, refreshToken: string) {
@@ -214,6 +294,73 @@ export class UsersService {
     return tokens;
   }
 
+  async UpdateUser(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    file?: Express.Multer.File,
+  ) {
+    const user = await this.usersRepository.findOne({
+      where: { id: id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (updateUserDto.username) {
+      const existingUser = await this.usersRepository.findOne({
+        where: { username: updateUserDto.username },
+      });
+      if (existingUser) {
+        throw new BadRequestException('Username already exists');
+      }
+    }
+
+    if (file) {
+      if (user.PhotoUrl) {
+        await this.cloudinaryService.deleteFile(user.PhotoUrl);
+      }
+
+      const photoUrl = await this.cloudinaryService.uploadFile(file);
+      await this.usersRepository.update(user.id, {
+        PhotoUrl: photoUrl.secure_url,
+      });
+    }
+
+    await this.usersRepository.update(user.id, {
+      username: updateUserDto.username,
+    });
+
+    return {
+      message: 'User updated successfully',
+    };
+  }
+
+  async banUser(id: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id: id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.AccountStatus === AccountStatus.BANNED) {
+      throw new BadRequestException('User already banned');
+    }
+
+    await this.usersRepository.update(user.id, {
+      isLoggedIn: false,
+      RefreshToken: null,
+      RefreshTokenExpireIn: null,
+      AccountStatus: AccountStatus.BANNED,
+    });
+
+    return {
+      message: 'User banned successfully',
+    };
+  }
+
   async UpdateEmail(id: string, updateEmailDto: UpdateEmailDto) {
     const user = await this.usersRepository.findOne({
       where: { id: id },
@@ -244,7 +391,7 @@ export class UsersService {
       Math.random().toString(36).substring(2, 15);
     const verificationLink = `http://localhost:3000/api/v1/users/verify-email/${verificationToken}`;
 
-    const newUser = await this.usersRepository.update(user.id, {
+    await this.usersRepository.update(user.id, {
       isEmailVerified: false,
       isLoggedIn: false,
       RefreshToken: null,
@@ -267,7 +414,6 @@ export class UsersService {
 
     return {
       message: 'Email updated successfully',
-      newUser
     };
   }
 
@@ -297,13 +443,12 @@ export class UsersService {
       updatePasswordDto.newPassword,
     );
 
-    const newUser = await this.usersRepository.update(user.id, {
+    await this.usersRepository.update(user.id, {
       password: hashedPassword,
     });
 
     return {
       message: 'Password updated successfully',
-      newUser,
     };
   }
 
@@ -318,7 +463,7 @@ export class UsersService {
 
     const forgetPasswordCode = Math.floor(100000 + Math.random() * 900000);
 
-    const newUser = await this.usersRepository.update(user.id, {
+    await this.usersRepository.update(user.id, {
       PasswordChangingCode: forgetPasswordCode,
       PasswordChangingCodeExpireIn: new Date(Date.now() + 60 * 60 * 1000),
       PasswordChangingCodeCreatedAt: new Date(),
@@ -337,7 +482,6 @@ export class UsersService {
 
     return {
       message: 'Forget password code sent successfully, Check your email',
-      newUser,
     };
   }
 
@@ -361,7 +505,7 @@ export class UsersService {
       throw new BadRequestException('Code has expired');
     }
 
-    const newUser = await this.usersRepository.update(user.id, {
+    await this.usersRepository.update(user.id, {
       isForgetPasswordCodeVerified: true,
       PasswordChangingCode: null,
       PasswordChangingCodeExpireIn: null,
@@ -370,7 +514,6 @@ export class UsersService {
 
     return {
       message: 'Code verified successfully',
-      newUser: newUser,
     };
   }
 
@@ -395,14 +538,60 @@ export class UsersService {
       resetPasswordDto.password,
     );
 
-    const newUser = await this.usersRepository.update(user.id, {
+    await this.usersRepository.update(user.id, {
       password: hashedPassword,
       isForgetPasswordCodeVerified: false,
     });
 
     return {
       message: 'Password reset successfully',
-      newUser,
     };
   }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async handleUserCleanups() {
+    this.logger.log('--- Starting Daily Users Maintenance Job ---');
+
+    const now = new Date();
+    const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+
+    const deleteResult = await this.usersRepository.delete({
+      isEmailVerified: false,
+      EmailVerificationLinkCreatedAt: LessThan(threeDaysAgo),
+    });
+
+    if (deleteResult.affected && deleteResult.affected > 0) {
+      this.logger.warn(
+        `Successfully deleted ${deleteResult.affected} unverified ghost accounts.`,
+      );
+    }
+
+    const threeMonthsAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+
+    const updateResult = await this.usersRepository.update(
+      {
+        isEmailVerified: true,
+        AccountStatus: AccountStatus.ACTIVE,
+        LastLogin: LessThan(threeMonthsAgo),
+      },
+      {
+        AccountStatus: AccountStatus.SUSPENDED,
+        isLoggedIn: false,
+        RefreshToken: null,
+        RefreshTokenExpireIn: null,
+      },
+    );
+
+    if (updateResult.affected && updateResult.affected > 0) {
+      this.logger.log(
+        `Successfully suspended ${updateResult.affected} inactive accounts (No activity for 3+ months).`,
+      );
+    }
+
+    this.logger.log('--- Users Maintenance Job Finished ---');
+  }
+
+  private readonly logger = new Logger(UsersService.name);
 }
+
+// test all endpoints

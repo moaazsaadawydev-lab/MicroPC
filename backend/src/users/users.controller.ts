@@ -26,6 +26,7 @@ import { RAW_REFRESH_TOKEN_KEY } from 'src/utils/constants';
 import { UpdateEmailDto } from './dto/Update-email.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UpdateUserDto } from './dto/UpdateUser.dto';
 
 @Controller('users')
 export class UsersController {
@@ -43,17 +44,12 @@ export class UsersController {
   @Get('verify-email/:token')
   @Render('email-verified')
   async verifyEmail(@Param('token') token: string) {
-    const result = await this.usersService.verifyEmail(token);
-
-    return {
-      name: result.user.username,
-    };
+    return this.usersService.verifyEmail(token);
   }
 
   @Post('auth/login')
   async login(
     @Body() loginUserDto: LoginUserDto,
-    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
     const tokens = await this.usersService.Login(
@@ -61,7 +57,7 @@ export class UsersController {
       loginUserDto.password,
     );
 
-    res.cookie('refreshToken', tokens.tokens.refresh_token, {
+    res.cookie('refreshToken', tokens.refresh_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -69,8 +65,14 @@ export class UsersController {
     });
 
     return {
-      access_token: tokens.tokens.access_token,
+      access_token: tokens.access_token,
     };
+  }
+
+  @Post('auth/validate-session')
+  @UseGuards(AuthGuard)
+  async validateSession(@CurrentUser() user: User) {
+    return this.usersService.validateSession(user.id);
   }
 
   @Post('auth/logout')
@@ -83,6 +85,11 @@ export class UsersController {
   @UseGuards(AuthGuard)
   async CurrentUser(@CurrentUser() user: User) {
     return this.usersService.CurrentUser(user.id);
+  }
+
+  @Post('auth/resend-verification-link')
+  async resendVerificationLink(@Body('email') email: string) {
+    return this.usersService.resendVerificationLink(email);
   }
 
   @Post('auth/refresh')
@@ -108,6 +115,17 @@ export class UsersController {
     return {
       access_token: tokens.access_token,
     };
+  }
+
+  @Patch('update-user')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FileInterceptor('profileImage'))
+  async UpdateUser(
+    @CurrentUser() user: User,
+    @Body() updateUserDto: UpdateUserDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.usersService.UpdateUser(user.id, updateUserDto, file);
   }
 
   @Patch('update-email')

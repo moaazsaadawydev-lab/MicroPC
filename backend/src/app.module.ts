@@ -15,6 +15,7 @@ import { DeliveryDriverProfile } from './users/entities/delivery-profile.entity'
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/adapters/ejs.adapter';
 import { join } from 'path';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { join } from 'path';
         },
       }),
     }),
+    ScheduleModule.forRoot(),
     UsersModule,
     ProductsModule,
     ReviewsModule,

@@ -8,6 +8,13 @@ export enum UserRole {
   USER = 'user',
 }
 
+export enum AccountStatus {
+  ACTIVE = 'active',
+  UNVERIFIED = 'unverified',
+  SUSPENDED = 'suspended',
+  BANNED = 'banned',
+}
+
 export enum ProductType {
   CASE = 'case',
   CPU = 'cpu',
