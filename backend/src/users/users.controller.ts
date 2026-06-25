@@ -18,6 +18,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
+import { AuthGuard as PassportAuthGuard } from '@nestjs/passport';
 import { AuthGuard } from 'src/Guards/Auth.guard';
 import { User } from './entities/user.entity';
 import { JwtRefreshTokenGuard } from 'src/Guards/JwtRefreshToken.guard';
@@ -165,5 +166,27 @@ export class UsersController {
     @Body() resetPasswordDto: ResetPasswordDto,
   ) {
     return this.usersService.ResetPassword(email, resetPasswordDto);
+  }
+
+  @Get('auth/google')
+  @UseGuards(PassportAuthGuard('google'))
+  async googleLogin() {}
+
+  @Get('auth/google/callback')
+  @UseGuards(PassportAuthGuard('google'))
+  async googleCallback(@Req() req: Request, @Res() res: Response) {
+    const user = req.user;
+
+    const tokens = await this.usersService.validateGoogleUser(user);
+
+    res.cookie('refreshToken', tokens.refresh_token, {
+      httpOnly: true,
+      sameSite: 'strict',
+      maxAge: 15 * 24 * 60 * 60 * 1000,
+    });
+
+    return {
+      access_token: tokens.access_token,
+    };
   }
 }

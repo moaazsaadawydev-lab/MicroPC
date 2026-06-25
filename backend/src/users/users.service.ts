@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
@@ -15,7 +16,7 @@ import { UpdateEmailDto } from './dto/Update-email.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { AccountStatus } from 'src/utils/enums';
+import { AccountStatus, UserRole } from 'src/utils/enums';
 import { UpdateUserDto } from './dto/UpdateUser.dto';
 import { Email_Verification_Token_EXPIRE_IN } from 'src/utils/constants';
 
@@ -38,6 +39,8 @@ export class UsersService {
     if (user) {
       throw new NotFoundException('User already exists');
     }
+
+    if (!password) throw new BadRequestException('Password is required');
 
     const hashedPassword = await this.commonService.hasher(password);
 
@@ -73,6 +76,56 @@ export class UsersService {
 
     return {
       message: 'User created successfully',
+    };
+  }
+
+  async validateGoogleUser(googleUser) {
+    const { email, firstName, lastName, picture } = googleUser;
+
+    let user = await this.usersRepository.findOne({ where: { email } });
+
+    if (user) {
+      if (user.AccountStatus === AccountStatus.BANNED) {
+        throw new ForbiddenException(
+          'Your account has been permanently banned.',
+        );
+      }
+
+      if (user.AccountStatus === AccountStatus.UNVERIFIED) {
+        user.AccountStatus = AccountStatus.ACTIVE;
+      }
+
+      if (user.AccountStatus === AccountStatus.SUSPENDED) {
+        throw new ForbiddenException(
+          'Your account has been suspended from accessing our services.',
+        );
+      }
+
+      user.LastLogin = new Date();
+
+      await this.usersRepository.save(user);
+    } else {
+      const safeFirstName = firstName ? firstName.toLowerCase() : 'user';
+      const safeLastName = lastName ? lastName.toLowerCase() : '';
+
+      const baseUsername = `${safeFirstName}_${safeLastName}`;
+
+      user = this.usersRepository.create({
+        email,
+        username: `${baseUsername}`,
+        PhotoUrl: picture,
+        AccountStatus: AccountStatus.ACTIVE,
+        isEmailVerified: true,
+        LastLogin: new Date(),
+      });
+
+      await this.usersRepository.save(user);
+    }
+    const tokens = await this.commonService.generateTokens(user);
+
+    return {
+      message: 'Google login successful',
+      ...tokens,
     };
   }
 
@@ -130,8 +183,9 @@ export class UsersService {
 
     const isMatch = await this.commonService.comparator(
       password,
-      user.password,
+      user.password || '',
     );
+
     if (!isMatch) {
       throw new BadRequestException('Invalid credentials');
     }
@@ -380,7 +434,7 @@ export class UsersService {
 
     const isPasswordMatch = await this.commonService.comparator(
       updateEmailDto.password,
-      user.password,
+      user.password || '',
     );
     if (!isPasswordMatch) {
       throw new BadRequestException('Invalid Password');
@@ -428,7 +482,7 @@ export class UsersService {
 
     const isPasswordMatch = await this.commonService.comparator(
       updatePasswordDto.oldPassword,
-      user.password,
+      user.password || '',
     );
 
     if (!isPasswordMatch) {
@@ -593,5 +647,3 @@ export class UsersService {
 
   private readonly logger = new Logger(UsersService.name);
 }
-
-// test all endpoints

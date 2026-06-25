@@ -1,12 +1,11 @@
 import {
-  ChildEntity,
   Column,
   JoinColumn,
   OneToOne,
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from 'src/users/entities/user.entity';
+import { User } from './user.entity';
 
 @Entity('delivery_driver_profiles')
 export class DeliveryDriverProfile {
@@ -16,50 +15,26 @@ export class DeliveryDriverProfile {
   @Column({ nullable: false, default: false })
   isAvailable: boolean;
 
-  @Column()
+  @Column({ nullable: false })
   VehicleType: string;
 
-  @Column()
-  VehicleLicenseNumber: string;
+  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
+  currentLatitude: number;
 
-  @Column()
-  VehicleLicensePicture: string;
+  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
+  currentLongitude: number;
 
-  @Column()
-  VehicleLicensePictureExpiresAt: Date;
+  @Column({ nullable: false })
+  VehicleLicenseNumber: number;
 
-  @Column()
-  VehicleLicensePictureCreatedAt: Date;
-
-  @Column()
-  VehicleLicensePictureUpdatedAt: Date;
-
-  @Column()
+  @Column({ default: 0 })
   SuccessfulOrders: number;
 
-  @Column()
+  @Column({ default: 0 })
   FailedOrders: number;
 
-  @Column()
+  @Column({ default: 0 })
   TotalOrders: number;
-
-  @Column()
-  CurrentDelivery: string;
-
-  @Column()
-  Rating: number;
-
-  @Column()
-  RatingCount: number;
-
-  @Column()
-  RatingDate: Date;
-
-  @Column()
-  RatingCreatedAt: Date;
-
-  @Column()
-  RatingUpdatedAt: Date;
 
   @OneToOne(() => User, (user) => user.deliveryDriverProfile)
   @JoinColumn({

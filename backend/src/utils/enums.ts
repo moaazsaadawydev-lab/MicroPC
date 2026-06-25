@@ -4,6 +4,7 @@ export enum UserRole {
   ACCOUNTANT = 'accountant',
   DELIVERY_RIDER = 'delivery_rider',
   DELIVERY_MANAGER = 'delivery_manager',
+  INVENTORY_MANAGER = 'inventory_manager',
   MARKETING_SPECIALIST = 'marketing_specialist',
   USER = 'user',
 }
