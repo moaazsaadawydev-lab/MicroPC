@@ -9,7 +9,7 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { LessThan, Repository } from 'typeorm';
+import { LessThan, Like, Repository } from 'typeorm';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CommonService } from 'src/common/common.service';
 import { UpdateEmailDto } from './dto/Update-email.dto';
@@ -83,6 +83,7 @@ export class UsersService {
     const { email, firstName, lastName, picture } = googleUser;
 
     let user = await this.usersRepository.findOne({ where: { email } });
+    let tokens;
 
     if (user) {
       if (user.AccountStatus === AccountStatus.BANNED) {
@@ -101,27 +102,42 @@ export class UsersService {
         );
       }
 
+      tokens = await this.commonService.generateTokens(user);
+
       user.LastLogin = new Date();
+      user.RefreshToken = tokens.hashed_refresh_token;
+      user.RefreshTokenExpireIn = new Date(
+        Date.now() + 60 * 60 * 24 * 15 * 1000,
+      );
 
       await this.usersRepository.save(user);
     } else {
-      const safeFirstName = firstName ? firstName.toLowerCase() : 'user';
-      const safeLastName = lastName ? lastName.toLowerCase() : '';
+      const safeFirstName: string = firstName
+        ? firstName.toLowerCase()
+        : 'user';
+      const safeLastName: string = lastName ? `_${lastName.toLowerCase()}` : '';
 
-      const baseUsername = `${safeFirstName}_${safeLastName}`;
+      const baseUsername: string = `${safeFirstName}${safeLastName}`;
 
-      user = this.usersRepository.create({
+      const newUser: User = this.usersRepository.create({
         email,
-        username: `${baseUsername}`,
+        username: baseUsername,
         PhotoUrl: picture,
         AccountStatus: AccountStatus.ACTIVE,
         isEmailVerified: true,
         LastLogin: new Date(),
+        isLoggedIn: true,
       });
 
-      await this.usersRepository.save(user);
+      const savedUser = await this.usersRepository.save(newUser);
+
+      tokens = await this.commonService.generateTokens(savedUser);
+
+      await this.usersRepository.update(savedUser.id, {
+        RefreshToken: tokens.hashed_refresh_token,
+        RefreshTokenExpireIn: new Date(Date.now() + 60 * 60 * 24 * 15 * 1000),
+      });
     }
-    const tokens = await this.commonService.generateTokens(user);
 
     return {
       message: 'Google login successful',

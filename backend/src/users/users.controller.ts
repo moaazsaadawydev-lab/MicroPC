@@ -93,7 +93,7 @@ export class UsersController {
     return this.usersService.resendVerificationLink(email);
   }
 
-  @Post('auth/refresh')
+  @Get('auth/refresh')
   @UseGuards(JwtRefreshTokenGuard)
   async RefreshAccessToken(
     @CurrentUser() user: User,
@@ -185,8 +185,8 @@ export class UsersController {
       maxAge: 15 * 24 * 60 * 60 * 1000,
     });
 
-    return {
+    res.json({
       access_token: tokens.access_token,
-    };
+    });
   }
 }

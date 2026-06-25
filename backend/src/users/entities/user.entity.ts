@@ -21,7 +21,7 @@ export class User {
   @Column({ nullable: false, unique: true })
   email: string;
 
-  @Column({ nullable: false, default: null, type: 'varchar', length: 255 })
+  @Column({ nullable: true, default: null, type: 'varchar', length: 255 })
   password: string | null;
 
   @Column({
