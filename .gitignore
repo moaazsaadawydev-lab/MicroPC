@@ -1,35 +1,35 @@
 # compiled output
-/dist
-/node_modules
-/build
+backend/dist
+backend/node_modules
+backend/build
 
 # Logs
-logs
-*.log
-npm-debug.log*
-pnpm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
+backend/logs
+backend/node_modules/.bin
+backend/npm-debug.log*
+backend/pnpm-debug.log*
+backend/yarn-debug.log*
+backend/yarn-error.log*
+backend/lerna-debug.log*
 
 # OS
 .DS_Store
 
 # Tests
-/coverage
-/.nyc_output
+backend/coverage
+backend/nyc_output
 
 # IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
+backend/.idea
+backend/.project
+backend/.classpath
+backend/.c9/
+backend/*.launch
 .settings/
 *.sublime-workspace
 
 # IDE - VSCode
-.vscode/*
+backend/.vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
