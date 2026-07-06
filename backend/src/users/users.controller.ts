@@ -28,6 +28,9 @@ import { UpdateEmailDto } from './dto/Update-email.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdateUserDto } from './dto/UpdateUser.dto';
+import { AuthRoleGuard } from 'src/Guards/AuthRole.guard';
+import { Roles } from 'src/decorators/UserRoles.decorator';
+import { UserRole } from 'src/utils/enums';
 
 @Controller('users')
 export class UsersController {
@@ -86,6 +89,13 @@ export class UsersController {
   @UseGuards(AuthGuard)
   async CurrentUser(@CurrentUser() user: User) {
     return this.usersService.CurrentUser(user.id);
+  }
+
+  @Get('all-users')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @UseGuards(AuthGuard, AuthRoleGuard)
+  async GetAllUsers() {
+    return this.usersService.GetAllUsers();
   }
 
   @Post('auth/resend-verification-link')

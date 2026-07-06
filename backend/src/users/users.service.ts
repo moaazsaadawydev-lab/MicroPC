@@ -332,6 +332,10 @@ export class UsersService {
     };
   }
 
+  async GetAllUsers() {
+    return await this.usersRepository.find();
+  }
+
   async updateRefreshToken(userId: string, refreshToken: string) {
     await this.usersRepository.update(userId, {
       RefreshToken: refreshToken,
