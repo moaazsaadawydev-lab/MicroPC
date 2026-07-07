@@ -60,4 +60,14 @@ export class CommonService {
       context: options.context,
     });
   }
+
+  public async generateLink(
+    prefix: string,
+  ): Promise<{ Link: string; Token: string }> {
+    const randomCode: string =
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15);
+
+    return { Link: `${prefix}${randomCode}`, Token: randomCode };
+  }
 }
