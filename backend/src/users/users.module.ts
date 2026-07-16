@@ -52,5 +52,6 @@ import { AuthController } from './Controllers/auth.controller';
     UpdateProvider,
     UpdatePasswordProvider,
   ],
+  exports: [UsersService],
 })
 export class UsersModule {}

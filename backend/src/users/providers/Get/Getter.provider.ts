@@ -27,4 +27,18 @@ export class GetterProvider {
   async GetAllUsers() {
     return await this.usersRepository.find();
   }
+
+  async GetUserById(id: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id: id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return {
+      user,
+    };
+  }
 }
