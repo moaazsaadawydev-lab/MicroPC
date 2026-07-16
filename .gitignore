@@ -24,6 +24,7 @@ backend/.idea
 backend/.project
 backend/.classpath
 backend/.c9/
+backend/src/env
 backend/*.launch
 .settings/
 *.sublime-workspace
