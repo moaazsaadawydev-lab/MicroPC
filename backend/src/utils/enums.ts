@@ -16,6 +16,13 @@ export enum AccountStatus {
   BANNED = 'banned',
 }
 
+export enum ProductStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  OUT_OF_STOCK = 'out_of_stock',
+  DISCONTINUED = 'discontinued',
+}
+
 export enum ProductType {
   CASE = 'case',
   CPU = 'cpu',

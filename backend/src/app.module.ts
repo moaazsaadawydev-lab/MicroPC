@@ -16,6 +16,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/adapters/ejs.adapter';
 import { join } from 'path';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AdminProfile } from './users/entities/Admin-profile.entity';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { ScheduleModule } from '@nestjs/schedule';
         username: config.get<string>('DATABASE_USER'),
         password: config.get<string>('DATABASE_PASSWORD'),
         database: config.get<string>('DATABASE_NAME'),
-        entities: [User, Product, Order, Review, DeliveryDriverProfile],
+        entities: [User, Product, Order, Review, DeliveryDriverProfile, AdminProfile],
         synchronize: true,
       }),
     }),

@@ -18,10 +18,14 @@ import { UpdatePasswordProvider } from './providers/Update/UpdatePassword.provid
 import { UpdateProvider } from './providers/Update/Update.provider';
 import { GetterProvider } from './providers/Get/Getter.provider';
 import { AuthController } from './Controllers/auth.controller';
+import { GetterController } from './Controllers/getter.controller';
+import { UpdateController } from './Controllers/update.controller';
+import { AdminProfile } from './entities/Admin-profile.entity';
+import { DeliveryDriverProfile } from './entities/delivery-profile.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, DeliveryDriverProfile, AdminProfile]),
     CommonModule,
     CloudinaryModule,
     JwtModule.registerAsync({
@@ -39,7 +43,12 @@ import { AuthController } from './Controllers/auth.controller';
       defaultStrategy: 'google',
     }),
   ],
-  controllers: [UsersController, AuthController],
+  controllers: [
+    UsersController,
+    AuthController,
+    GetterController,
+    UpdateController,
+  ],
   providers: [
     UsersService,
     GoogleStrategy,

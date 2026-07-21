@@ -1,5 +1,5 @@
 import { Body, Controller, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { AuthGuard } from 'src/Guards/Auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
 import { User } from '../entities/user.entity';

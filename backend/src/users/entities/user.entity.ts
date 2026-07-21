@@ -9,6 +9,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Admin } from 'typeorm/driver/mongodb/typings.js';
+import { AdminProfile } from './Admin-profile.entity';
 
 @Entity('users')
 export class User {
@@ -101,4 +103,9 @@ export class User {
     cascade: true,
   })
   deliveryDriverProfile: DeliveryDriverProfile;
+
+  @OneToOne(() => AdminProfile, (profile) => profile.products, {
+    cascade: true,
+  })
+  adminProfile: AdminProfile;
 }

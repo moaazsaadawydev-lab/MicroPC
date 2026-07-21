@@ -27,6 +27,15 @@ export class CloudinaryService {
     });
   }
 
+  async uploadFiles(
+    files: Express.Multer.File[],
+  ): Promise<(UploadApiResponse | UploadApiErrorResponse)[]> {
+    const uploadedFiles = await Promise.all(
+      files.map((file) => this.uploadFile(file)),
+    );
+    return uploadedFiles;
+  }
+
   deleteFile(url: string): Promise<any> {
     return new Promise((resolve, reject) => {
       try {

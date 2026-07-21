@@ -4,6 +4,7 @@ import { User } from 'src/users/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class CommonService {
@@ -11,6 +12,7 @@ export class CommonService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly mailerService: MailerService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   public async hasher(hashString: string): Promise<string> {
@@ -69,5 +71,16 @@ export class CommonService {
       Math.random().toString(36).substring(2, 15);
 
     return { Link: `${prefix}${randomCode}`, Token: randomCode };
+  }
+
+  async uploadImages(images: Express.Multer.File[]) {
+    const uploadedImages = await this.cloudinaryService.uploadFiles(images);
+    return uploadedImages.map((image) => image.url);
+  }
+
+  async calculateProductPrice(price: number, discount: number) {
+    const totalPrice = price;
+    const finalPrice = totalPrice - (totalPrice * discount) / 100;
+    return finalPrice;
   }
 }

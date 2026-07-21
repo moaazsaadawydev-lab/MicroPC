@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CommonService } from 'src/common/common.service';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 
@@ -12,6 +13,7 @@ export class AuthProvider {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    private readonly commonService: CommonService,
   ) {}
 
   async validateSession(userId: string) {

@@ -21,7 +21,31 @@ export class ProductsService {
     private readonly configService: ConfigService,
   ) {}
 
-  async CreateProduct(files: { image: Express.Multer.File[] }, data: CreateProductDto) {
-    
+  async CreateProduct(
+    files: { images: Express.Multer.File[] },
+    data: CreateProductDto,
+  ) {
+    const { name, price, discount, brand, stock, status, category } = data;
+
+    const finalPrice = await this.commonService.calculateProductPrice(
+      +price,
+      +discount,
+    );
+
+    const images = await this.commonService.uploadImages(files.images);
+
+    const product = this.productRepository.create({
+      name,
+      price,
+      discount,
+      finalPrice: (await finalPrice).toFixed(2).toString(),
+      images,
+      category,
+      brand,
+      stock,
+      status,
+    });
+
+    return await this.productRepository.save(product);
   }
 }
